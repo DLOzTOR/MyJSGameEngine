@@ -1,0 +1,48 @@
+body{
+    margin: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: black;
+}
+#game{
+    overflow: hidden;
+    position: relative;
+    background-color: white;
+}
+#game div{
+    
+    position: absolute;
+    top: -5%;
+    left: 5%;
+    width: 10%;
+    height: 10%;
+    background: green;
+}
+#game button{
+    width: 10%;
+    height: 10%;
+}
+#game .rorate-me{
+    top: 10%;
+    left: 10%;
+    width: 10%;
+    height: 10%;
+    background: yellow;
+}
+#game .rorate-me div{
+    top: 45%;
+    left: 100%;
+    width: 10%;
+    height: 10%;
+    background: yellow;
+    background: red;
+}
+#game span{
+    display: block;
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: bold;
+    font-size: 100%;
+}
