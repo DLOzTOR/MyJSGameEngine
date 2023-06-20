@@ -1,50 +1,59 @@
 (() => {
-  // source/Canvas.js
+  // source/Graphics/Canvas.ts
   var Canvas = class {
     Layers = [];
+    LayersCount;
+    Game;
+    WScale;
+    HScale;
+    Scale;
+    WSize;
+    HSize;
     constructor(widthScale, heightScale, LayersCount) {
       this.LayersCount = LayersCount;
-      this.game = document.querySelector("#game");
-      this.wScale = widthScale;
-      this.hScale = heightScale;
-      this.scale = 1;
-      this.wSize = 0;
-      this.hSize = 0;
+      this.Game = document.querySelector("#game");
+      this.WScale = widthScale;
+      this.HScale = heightScale;
+      this.Scale = 1;
+      this.WSize = 0;
+      this.HSize = 0;
       this.#updateSize();
       window.addEventListener("resize", () => this.#updateSize());
       for (let i = 0; i < LayersCount; i++) {
         let layer = document.createElement("div");
         layer.className = `layer layer${i}`;
-        this.game.append(layer);
+        this.Game.append(layer);
         this.Layers.push(layer);
       }
     }
     #updateSize() {
-      let w = window.innerWidth / this.wScale;
-      let h = window.innerHeight / this.hScale;
-      let t = this.wScale + 1;
+      let w = window.innerWidth / this.WScale;
+      let h = window.innerHeight / this.HScale;
       let windowScale = Math.min(w, h);
-      this.scale = windowScale / 120;
-      this.wSize = windowScale * this.wScale;
-      this.hSize = windowScale * this.hScale;
-      this.game.setAttribute("style", `width: ${this.wSize}px; height: ${this.hSize}px;`);
+      this.Scale = windowScale / 120;
+      this.WSize = windowScale * this.WScale;
+      this.HSize = windowScale * this.HScale;
+      this.Game.setAttribute("style", `width: ${this.WSize}px; height: ${this.HSize}px;`);
     }
     AddElementToLeyer(DOMelement, layer) {
       if (layer < 0 || layer > this.LayersCount - 1) {
         return false;
       }
       this.Layers[layer].append(DOMelement);
+      return true;
     }
   };
 
-  // source/Math/MathConstants.js
+  // source/Math/MathConstants.ts
   var MathConstants = class {
     static RadianToDegrees = 180 / Math.PI;
     static DegreesToRadian = Math.PI / 180;
   };
 
-  // source/Math/Vector2.js
+  // source/Math/Vector2.ts
   var Vector2 = class _Vector2 {
+    X;
+    Y;
     constructor(X, Y) {
       this.X = X;
       this.Y = Y;
@@ -57,6 +66,9 @@
     }
     Dot(vector) {
       return _Vector2.Dot(this, vector);
+    }
+    Rotate(angle) {
+      return _Vector2.Rotate(this, angle);
     }
     Magnitude() {
       return _Vector2.Magnitude(this);
@@ -103,7 +115,7 @@
     }
     static Angle(vector1, vector2) {
       if (!_Vector2.Equals(vector1, _Vector2.Zero) && !_Vector2.Equals(vector1, _Vector2.Zero)) {
-        return Math.acos(vector2.Dot(vector1, vector2) / (vector1.Magnitude() * vector2.Magnitude())) * MathConstants.RadianToDegrees;
+        return Math.acos(_Vector2.Dot(vector1, vector2) / (vector1.Magnitude() * vector2.Magnitude())) * MathConstants.RadianToDegrees;
       }
       return NaN;
     }
@@ -134,7 +146,7 @@
     }
   };
 
-  // source/main.js
+  // source/main.ts
   var canvas = new Canvas(16, 9, 5);
   var colors = ["blue", "red", "green", "yellow", "violet"];
   for (let i = 0; i < 5; i++) {
