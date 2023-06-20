@@ -14,4 +14,5 @@ console.log(Vector2.Dot(Vector2.Up, Vector2.One));
 console.log(Vector2.Angle(Vector2.One, Vector2.Up));
 console.log(Vector2.Angle(Vector2.Up, Vector2.Zero));
 console.log(Vector2.LineNormal(Vector2.Zero, Vector2.One.Scale(5)).ToSting());
+console.log(Vector2.Rotate(Vector2.One, 135).ToSting());
 console.log(Vector2.Normilize(myVec).ToSting());

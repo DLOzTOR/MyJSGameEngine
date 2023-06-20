@@ -126,6 +126,12 @@
     static LineNormal(vector1, vector2) {
       return new _Vector2(-(vector2.X - vector1.X), vector2.Y - vector1.Y);
     }
+    static Rotate(vector, angle) {
+      angle = angle * MathConstants.DegreesToRadian;
+      let m = vector.Magnitude();
+      vector = vector.Normilize();
+      return new _Vector2(Math.cos(angle) * m, Math.sin(angle) * m);
+    }
   };
 
   // source/main.js
@@ -142,5 +148,6 @@
   console.log(Vector2.Angle(Vector2.One, Vector2.Up));
   console.log(Vector2.Angle(Vector2.Up, Vector2.Zero));
   console.log(Vector2.LineNormal(Vector2.Zero, Vector2.One.Scale(5)).ToSting());
+  console.log(Vector2.Rotate(Vector2.One, 135).ToSting());
   console.log(Vector2.Normilize(myVec).ToSting());
 })();

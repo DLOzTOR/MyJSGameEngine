@@ -13,6 +13,9 @@ export class Vector2{
     Dot(vector){
         return Vector2.Dot(this, vector);
     }
+    Rotate(angle){
+        return Vector2.Rotate(this, angle);
+    }
     Magnitude(){
         return Vector2.Magnitude(this);
     }
@@ -80,5 +83,11 @@ export class Vector2{
     }
     static LineNormal(vector1, vector2){
         return new Vector2(-(vector2.X - vector1.X), (vector2.Y - vector1.Y));
+    }
+    static Rotate(vector, angle){
+        angle = angle * MathConstants.DegreesToRadian;
+        let m = vector.Magnitude();
+        vector = vector.Normilize();
+        return new Vector2(Math.cos(angle) * m, Math.sin(angle) * m);
     }
 }
