@@ -6,7 +6,7 @@ export class Time{
         Time.prevTime = performance.now();
         Time.curTime = performance.now();
     }
-    static UpdateTime():void{
+    static Update():void{
         Time.curTime = performance.now();
         Time.deltaTime = (Time.curTime - Time.prevTime)/1000;
         Time.prevTime = Time.curTime;

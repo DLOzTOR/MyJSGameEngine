@@ -146,6 +146,29 @@
     }
   };
 
+  // source/Physics/Transform.ts
+  var Transform = class {
+    Position = Vector2.Zero;
+    rotation = 0;
+    constructor(Position, Rotation) {
+      this.Position = Position;
+      this.rotation = Rotation;
+    }
+    get Rotation() {
+      return this.rotation;
+    }
+    set Rotation(value) {
+      if (value > 360) {
+        this.rotation = value % 360;
+      } else if (value < 360) {
+        value = value % 360;
+        this.rotation = 360 + value;
+      } else {
+        this.rotation = value;
+      }
+    }
+  };
+
   // source/main.ts
   var canvas = new Canvas(16, 9, 5);
   var colors = ["blue", "red", "green", "yellow", "violet"];
@@ -154,12 +177,9 @@
     elem.setAttribute("style", `width: 40%; height: 40%; top: ${15 + 5 * i}%; left: ${10 + 10 * i}%; background-color: ${colors[i]};`);
     canvas.AddElementToLeyer(elem, i);
   }
-  var myVec = Vector2.One;
-  console.log(myVec.ToSting());
-  console.log(Vector2.Dot(Vector2.Up, Vector2.One));
-  console.log(Vector2.Angle(Vector2.One, Vector2.Up));
-  console.log(Vector2.Angle(Vector2.Up, Vector2.Zero));
-  console.log(Vector2.LineNormal(Vector2.Zero, Vector2.One.Scale(5)).ToSting());
-  console.log(Vector2.Rotate(Vector2.One, 135).ToSting());
-  console.log(Vector2.Normilize(myVec).ToSting());
+  var transf = new Transform(Vector2.Zero, 0);
+  transf.Rotation = 370;
+  console.log(transf.Rotation);
+  transf.Rotation = -10;
+  console.log(transf.Rotation);
 })();
