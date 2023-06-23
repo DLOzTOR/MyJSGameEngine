@@ -146,6 +146,54 @@
     }
   };
 
+  // source/Physics/Colliders.ts
+  var Colliders;
+  ((Colliders2) => {
+    class Collider {
+      colliderType;
+      constructor(colliderType) {
+        this.colliderType = colliderType;
+      }
+    }
+    Colliders2.Collider = Collider;
+    class AABBCollider extends Collider {
+      Top;
+      Bottom;
+      //top - highest right point, bottom - bottom left point  
+      constructor(bottom, top) {
+        super(0 /* AABB */);
+        this.Top = top;
+        this.Bottom = bottom;
+      }
+    }
+    Colliders2.AABBCollider = AABBCollider;
+    let ColliderType;
+    ((ColliderType2) => {
+      ColliderType2[ColliderType2["AABB"] = 0] = "AABB";
+      ColliderType2[ColliderType2["Polygone"] = 1] = "Polygone";
+      ColliderType2[ColliderType2["Circule"] = 2] = "Circule";
+    })(ColliderType = Colliders2.ColliderType || (Colliders2.ColliderType = {}));
+  })(Colliders || (Colliders = {}));
+
+  // source/Physics/Collisions.ts
+  var Collisions = class {
+    static AABBtoAABB(col12, col22) {
+      let axmin = col12.Bottom.X;
+      let axmax = col12.Top.X;
+      let aymin = col12.Bottom.Y;
+      let aymax = col12.Top.Y;
+      let bxmin = col22.Bottom.X;
+      let bxmax = col22.Top.X;
+      let bymin = col22.Bottom.Y;
+      let bymax = col22.Top.Y;
+      if (axmin <= bxmax && bxmin <= axmax && aymin <= bymax && bymin <= aymax) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+  };
+
   // source/Physics/Transform.ts
   var Transform = class {
     Position = Vector2.Zero;
@@ -182,4 +230,7 @@
   console.log(transf.Rotation);
   transf.Rotation = -10;
   console.log(transf.Rotation);
+  var col1 = new Colliders.AABBCollider(Vector2.Zero, Vector2.One);
+  var col2 = new Colliders.AABBCollider(Vector2.Zero, Vector2.One);
+  console.log(Collisions.AABBtoAABB(col1, col2));
 })();

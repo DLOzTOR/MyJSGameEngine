@@ -1,5 +1,7 @@
 import { Canvas } from "./Graphics/Canvas";
 import { Vector2 } from "./Math/Vector2";
+import { Colliders } from "./Physics/Colliders";
+import { Collisions } from "./Physics/Collisions";
 import { Transform } from "./Physics/Transform";
 let canvas:Canvas = new Canvas(16, 9, 5);
 let colors:Array<string> = ["blue", "red", "green", "yellow", "violet"];
@@ -14,3 +16,6 @@ transf.Rotation = 370;
 console.log(transf.Rotation);
 transf.Rotation = -10;
 console.log(transf.Rotation);
+let col1 = new Colliders.AABBCollider(Vector2.Zero, Vector2.One);
+let col2 = new Colliders.AABBCollider(Vector2.Zero, Vector2.One);
+console.log(Collisions.AABBtoAABB(col1, col2));
