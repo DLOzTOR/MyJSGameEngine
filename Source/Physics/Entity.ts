@@ -1,26 +1,22 @@
 import { Transform } from "./Transform";
 import { Vector2 } from "../Math/Vector2";
-import { Colliders } from "./Colliders";
 export abstract class Entity{
     transform: Transform;
-    collider: Colliders.Collider;
-    velocity: Vector2;
-    DOMelement: ;
-    Active: boolean;
-    constructor(transform: Transform, collider: Colliders.Collider, velocity: Vector2, DOMelement: HTMLDivElement, Active: boolean){
+    IsActive: boolean = true;
+    Image: HTMLImageElement; 
+    constructor(transform: Transform, Image: HTMLImageElement, Layer: number){
         this.transform = transform;
-        this.collider = collider;
-        this.velocity = velocity;
-        this.DOMelement = DOMelement;
-        this.Active = Active;
+        this.Image = Image;
     }
     Update(): void{
 
     }
-    Draw(context: CanvasRenderingContext2D):void{
-        
+    Draw(Context: CanvasRenderingContext2D, CameraPosition: Vector2):void{
+        if(this.IsActive){
+            Context.drawImage(this.Image, this.transform.Position.X + CameraPosition.X, this.transform.Position.Y  + CameraPosition.Y, this.transform.Size.X, this.transform.Position.Y);
+        }
     }
     SetActive(value: boolean): void{
-        this.Active = value;
+        this.IsActive = value;
     }
 }

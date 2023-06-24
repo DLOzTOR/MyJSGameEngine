@@ -1,42 +1,51 @@
 (() => {
-  // source/Graphics/Canvas.ts
+  // source/Graphics/Canvas/Layer.ts
+  var Layer = class {
+    Canvas;
+    Context;
+    constructor(parent) {
+      this.Canvas = document.createElement("canvas");
+      this.Canvas.setAttribute("style", "position: absolute; top: 0; left: 0; width: 100%; height: 100%;");
+      parent.append(this.Canvas);
+      this.Canvas.width = 1920;
+      this.Canvas.height = 1080;
+      this.Context = this.Canvas.getContext("2d");
+      let img2 = new Image();
+      img2.src = "Res/img/1085818.jpg";
+      this.Context.drawImage(img2, 0, 0);
+    }
+  };
+
+  // source/Graphics/Canvas/Canvas.ts
   var Canvas = class {
     Layers = [];
     LayersCount;
     canvas;
-    Context;
     WScale;
     HScale;
-    Scale;
-    WSize;
-    HSize;
-    constructor(widthScale, heightScale, LayersCount) {
+    constructor(LayersCount) {
       this.LayersCount = LayersCount;
-      this.canvas = document.querySelector("#game");
-      this.Context = this.canvas.getContext("2d");
-      this.WScale = widthScale;
-      this.HScale = heightScale;
-      this.Scale = 1;
-      this.WSize = 0;
-      this.HSize = 0;
-      this.canvas.width = 1920;
-      this.canvas.height = 1080;
+      this.canvas = document.querySelector("body");
+      this.WScale = 16;
+      this.HScale = 9;
       this.updateSize();
+      for (let i = 0; i < LayersCount; i++) {
+        this.Layers.push(new Layer(this.canvas));
+      }
       window.addEventListener("resize", () => this.updateSize());
     }
     updateSize() {
       let w = window.innerWidth / this.WScale;
       let h = window.innerHeight / this.HScale;
       let windowScale = Math.min(w, h);
-      this.Scale = windowScale / 120;
-      this.WSize = windowScale * this.WScale;
-      this.HSize = windowScale * this.HScale;
-      this.canvas.width = 1920;
-      this.canvas.height = 1080;
-      this.canvas.setAttribute("style", `width: ${this.WSize}px; height: ${this.HSize}px;`);
+      let WSize = windowScale * this.WScale;
+      let HSize = windowScale * this.HScale;
+      this.canvas.setAttribute("style", `width: ${WSize}px; height: ${HSize}px;`);
     }
-    AddElementToLeyer(DOMelement, layer) {
-      return true;
+    GetLayerContext(Layer2) {
+      if (Layer2 >= 0 && Layer2 < this.LayersCount) {
+        return this.Layers[Layer2].Context;
+      }
     }
   };
 
@@ -243,7 +252,7 @@
   };
 
   // source/main.ts
-  var canvas = new Canvas(16, 9, 5);
+  var canvas = new Canvas(2);
   var game = new Game(Start, Update, () => {
   }, () => {
   }, () => {
@@ -256,8 +265,6 @@
   tile2.src = "Res/img/Tile2.png";
   var playerImg = new Image();
   playerImg.src = "Res/img/idel1.png";
-  canvas.Context.scale(0.1, 0.1);
-  canvas.Context.drawImage(img, 0, 0);
   setInterval(Update, 16);
   var pos = Vector2.Zero;
   var Tiles = [];
@@ -277,12 +284,11 @@
   }
   var Player = new Tile(new Vector2(800, 500), playerImg);
   function Update() {
-    canvas.Context.clearRect(0, 0, 1920, 1080);
-    canvas.Context.save();
-    canvas.Context.drawImage(img, 0, 0);
-    Player.Draw(canvas.Context, Vector2.Zero);
+    canvas.GetLayerContext(1).clearRect(0, 0, 1920, 1080);
+    canvas.GetLayerContext(0).drawImage(img, 0, 0);
+    Player.Draw(canvas.GetLayerContext(1), Vector2.Zero);
     Tiles.forEach((tile) => {
-      tile.Draw(canvas.Context, pos);
+      tile.Draw(canvas.GetLayerContext(1), pos);
     });
     if (Input.GetKeyState(65)) {
       pos = pos.Add(Vector2.Right.Scale(speed * 0.016));
@@ -291,6 +297,5 @@
       pos = pos.Add(Vector2.Left.Scale(speed * 0.016));
     }
     pos = new Vector2(Math.floor(pos.X), Math.floor(pos.Y));
-    canvas.Context.restore();
   }
 })();
