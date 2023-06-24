@@ -1,4 +1,5 @@
 import { Time } from "./Time";
+import { Input } from "./Input";
 export class Game{
     onStart: Function;
     onUpdate: Function;
@@ -17,7 +18,8 @@ export class Game{
     Start(): void{
         this.onStart();
         Time.Init();
-        window.requestAnimationFrame(this.Update.bind(this));
+        Input.Init();
+        //window.requestAnimationFrame(this.Update.bind(this));
     }
     Update(): void{
         if(!this.ShouldStop){

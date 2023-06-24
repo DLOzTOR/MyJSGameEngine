@@ -5,6 +5,9 @@ export namespace Colliders{
         constructor(colliderType: ColliderType){
             this.colliderType = colliderType;
         }
+        Update(pos:Vector2){
+
+        }
     }
     export class AABBCollider extends Collider{
         Top: Vector2;

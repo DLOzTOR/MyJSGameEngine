@@ -3,7 +3,8 @@
   var Canvas = class {
     Layers = [];
     LayersCount;
-    Game;
+    canvas;
+    Context;
     WScale;
     HScale;
     Scale;
@@ -11,35 +12,30 @@
     HSize;
     constructor(widthScale, heightScale, LayersCount) {
       this.LayersCount = LayersCount;
-      this.Game = document.querySelector("#game");
+      this.canvas = document.querySelector("#game");
+      this.Context = this.canvas.getContext("2d");
       this.WScale = widthScale;
       this.HScale = heightScale;
       this.Scale = 1;
       this.WSize = 0;
       this.HSize = 0;
-      this.#updateSize();
-      window.addEventListener("resize", () => this.#updateSize());
-      for (let i = 0; i < LayersCount; i++) {
-        let layer = document.createElement("div");
-        layer.className = `layer layer${i}`;
-        this.Game.append(layer);
-        this.Layers.push(layer);
-      }
+      this.canvas.width = 1920;
+      this.canvas.height = 1080;
+      this.updateSize();
+      window.addEventListener("resize", () => this.updateSize());
     }
-    #updateSize() {
+    updateSize() {
       let w = window.innerWidth / this.WScale;
       let h = window.innerHeight / this.HScale;
       let windowScale = Math.min(w, h);
       this.Scale = windowScale / 120;
       this.WSize = windowScale * this.WScale;
       this.HSize = windowScale * this.HScale;
-      this.Game.setAttribute("style", `width: ${this.WSize}px; height: ${this.HSize}px;`);
+      this.canvas.width = 1920;
+      this.canvas.height = 1080;
+      this.canvas.setAttribute("style", `width: ${this.WSize}px; height: ${this.HSize}px;`);
     }
     AddElementToLeyer(DOMelement, layer) {
-      if (layer < 0 || layer > this.LayersCount - 1) {
-        return false;
-      }
-      this.Layers[layer].append(DOMelement);
       return true;
     }
   };
@@ -146,91 +142,155 @@
     }
   };
 
-  // source/Physics/Colliders.ts
-  var Colliders;
-  ((Colliders2) => {
-    class Collider {
-      colliderType;
-      constructor(colliderType) {
-        this.colliderType = colliderType;
-      }
+  // source/Logic/Input.ts
+  var Input = class _Input {
+    static activeKeys = [];
+    static Init() {
+      document.onkeydown = _Input.#onKeyDown;
+      document.onkeyup = _Input.#onKeyUP;
+      window.addEventListener("blur", () => {
+        _Input.#onChangeFocus();
+      });
     }
-    Colliders2.Collider = Collider;
-    class AABBCollider extends Collider {
-      Top;
-      Bottom;
-      //top - highest right point, bottom - bottom left point  
-      constructor(bottom, top) {
-        super(0 /* AABB */);
-        this.Top = top;
-        this.Bottom = bottom;
-      }
+    static #onKeyDown(e) {
+      _Input.#SetKeyState(e, true);
     }
-    Colliders2.AABBCollider = AABBCollider;
-    let ColliderType;
-    ((ColliderType2) => {
-      ColliderType2[ColliderType2["AABB"] = 0] = "AABB";
-      ColliderType2[ColliderType2["Polygone"] = 1] = "Polygone";
-      ColliderType2[ColliderType2["Circule"] = 2] = "Circule";
-    })(ColliderType = Colliders2.ColliderType || (Colliders2.ColliderType = {}));
-  })(Colliders || (Colliders = {}));
-
-  // source/Physics/Collisions.ts
-  var Collisions = class {
-    static AABBtoAABB(col12, col22) {
-      let axmin = col12.Bottom.X;
-      let axmax = col12.Top.X;
-      let aymin = col12.Bottom.Y;
-      let aymax = col12.Top.Y;
-      let bxmin = col22.Bottom.X;
-      let bxmax = col22.Top.X;
-      let bymin = col22.Bottom.Y;
-      let bymax = col22.Top.Y;
-      if (axmin <= bxmax && bxmin <= axmax && aymin <= bymax && bymin <= aymax) {
-        return true;
+    static #onKeyUP(e) {
+      _Input.#SetKeyState(e, false);
+    }
+    static #onChangeFocus() {
+      _Input.activeKeys = [];
+    }
+    static #SetKeyState(e, state) {
+      if (e.keyCode == 9) {
+        return;
+      }
+      if (state == true) {
+        if (!_Input.activeKeys.includes(e.keyCode)) {
+          _Input.activeKeys.push(e.keyCode);
+        }
       } else {
-        return false;
+        if (_Input.activeKeys.includes(e.keyCode)) {
+          _Input.activeKeys.splice(_Input.activeKeys.indexOf(e.keyCode), 1);
+        }
+      }
+    }
+    static GetKeyState(keyCode) {
+      return this.activeKeys.includes(keyCode);
+    }
+  };
+
+  // source/Logic/Time.ts
+  var Time = class _Time {
+    static prevTime;
+    static curTime;
+    static deltaTime = (_Time.curTime - _Time.prevTime) / 1e3;
+    static Init() {
+      _Time.prevTime = performance.now();
+      _Time.curTime = performance.now();
+    }
+    static Update() {
+      _Time.curTime = performance.now();
+      _Time.deltaTime = (_Time.curTime - _Time.prevTime) / 1e3;
+      _Time.prevTime = _Time.curTime;
+    }
+    static get DeltaTime() {
+      return _Time.deltaTime;
+    }
+  };
+
+  // source/Logic/Game.ts
+  var Game = class {
+    onStart;
+    onUpdate;
+    onStop;
+    onStartPause;
+    onClearPause;
+    ShouldStop = false;
+    IsPause = false;
+    constructor(onStart, onUpdate, onStop, onStartPause, onClearPause) {
+      this.onStart = onStart;
+      this.onUpdate = onUpdate;
+      this.onStop = onStop;
+      this.onStartPause = onStartPause;
+      this.onClearPause = onClearPause;
+    }
+    Start() {
+      this.onStart();
+      Time.Init();
+      Input.Init();
+    }
+    Update() {
+      if (!this.ShouldStop) {
+        Time.Update();
+        this.onUpdate();
+        window.requestAnimationFrame(this.Update.bind(this));
       }
     }
   };
 
-  // source/Physics/Transform.ts
-  var Transform = class {
-    Position = Vector2.Zero;
-    rotation = 0;
-    constructor(Position, Rotation) {
-      this.Position = Position;
-      this.rotation = Rotation;
+  // source/Entities/Tile.ts
+  var Tile = class {
+    position;
+    img;
+    constructor(position, img2) {
+      this.position = position;
+      this.img = img2;
     }
-    get Rotation() {
-      return this.rotation;
-    }
-    set Rotation(value) {
-      if (value > 360) {
-        this.rotation = value % 360;
-      } else if (value < 360) {
-        value = value % 360;
-        this.rotation = 360 + value;
-      } else {
-        this.rotation = value;
-      }
+    Draw(Context, Camera) {
+      Context.drawImage(this.img, this.position.X + Camera.X, this.position.Y + Camera.Y, 100, 100);
     }
   };
 
   // source/main.ts
   var canvas = new Canvas(16, 9, 5);
-  var colors = ["blue", "red", "green", "yellow", "violet"];
-  for (let i = 0; i < 5; i++) {
-    let elem = document.createElement("div");
-    elem.setAttribute("style", `width: 40%; height: 40%; top: ${15 + 5 * i}%; left: ${10 + 10 * i}%; background-color: ${colors[i]};`);
-    canvas.AddElementToLeyer(elem, i);
+  var game = new Game(Start, Update, () => {
+  }, () => {
+  }, () => {
+  });
+  var img = new Image();
+  img.src = "Res/img/1085818.jpg";
+  var tile1 = new Image();
+  tile1.src = "Res/img/Tile1.png";
+  var tile2 = new Image();
+  tile2.src = "Res/img/Tile2.png";
+  var playerImg = new Image();
+  playerImg.src = "Res/img/idel1.png";
+  canvas.Context.scale(0.1, 0.1);
+  canvas.Context.drawImage(img, 0, 0);
+  setInterval(Update, 16);
+  var pos = Vector2.Zero;
+  var Tiles = [];
+  for (let x = 0; x < 20; x++) {
+    for (let y = 0; y < 5; y++) {
+      if (y == 0) {
+        Tiles.push(new Tile(new Vector2(0 + 100 * x, 600 + 100 * y), tile1));
+      } else {
+        Tiles.push(new Tile(new Vector2(0 + 100 * x, 600 + 100 * y), tile2));
+      }
+    }
   }
-  var transf = new Transform(Vector2.Zero, 0);
-  transf.Rotation = 370;
-  console.log(transf.Rotation);
-  transf.Rotation = -10;
-  console.log(transf.Rotation);
-  var col1 = new Colliders.AABBCollider(Vector2.Zero, Vector2.One);
-  var col2 = new Colliders.AABBCollider(Vector2.Zero, Vector2.One);
-  console.log(Collisions.AABBtoAABB(col1, col2));
+  window.onload = () => game.Start();
+  var speed = 300;
+  function Start() {
+    canvas.updateSize();
+  }
+  var Player = new Tile(new Vector2(800, 500), playerImg);
+  function Update() {
+    canvas.Context.clearRect(0, 0, 1920, 1080);
+    canvas.Context.save();
+    canvas.Context.drawImage(img, 0, 0);
+    Player.Draw(canvas.Context, Vector2.Zero);
+    Tiles.forEach((tile) => {
+      tile.Draw(canvas.Context, pos);
+    });
+    if (Input.GetKeyState(65)) {
+      pos = pos.Add(Vector2.Right.Scale(speed * 0.016));
+    }
+    if (Input.GetKeyState(68)) {
+      pos = pos.Add(Vector2.Left.Scale(speed * 0.016));
+    }
+    pos = new Vector2(Math.floor(pos.X), Math.floor(pos.Y));
+    canvas.Context.restore();
+  }
 })();

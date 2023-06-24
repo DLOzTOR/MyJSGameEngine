@@ -1,10 +1,12 @@
 import { Vector2 } from "../Math/Vector2";
 export class Transform{
     Position: Vector2 = Vector2.Zero;
+    Scale: Vector2 = Vector2.One;
     private rotation: number = 0;
-    constructor(Position: Vector2, Rotation: number){
+    constructor(Position: Vector2, Rotation: number, scale: Vector2){
         this.Position = Position;
         this.rotation = Rotation;
+        this.Scale = scale;
     }
     get Rotation(): number{
         return this.rotation;

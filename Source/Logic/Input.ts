@@ -1,5 +1,5 @@
 export class Input{
-    private static activeKeys:Array<number> = [];
+    static activeKeys:Array<number> = [];
     static Init():void{
         document.onkeydown = Input.#onKeyDown;
         document.onkeyup = Input.#onKeyUP;
