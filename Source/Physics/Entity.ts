@@ -3,17 +3,23 @@ import { Vector2 } from "../Math/Vector2";
 export abstract class Entity{
     transform: Transform;
     IsActive: boolean = true;
-    Image: HTMLImageElement; 
-    constructor(transform: Transform, Image: HTMLImageElement, Layer: number){
+    Image: HTMLImageElement;
+    Layer: number;
+    constructor(transform: Transform, Image: string, Layer: number){
         this.transform = transform;
-        this.Image = Image;
+        this.Image = document.createElement("img");
+        this.Image.src = Image;
+        this.Layer = Layer;
     }
-    Update(): void{
+    Update(Entities:Array<Entity>): void{
 
+    }
+    GetCollider():Array<Vector2>{
+        return [this.transform.Position, this.transform.Position.Add(this.transform.Size)];
     }
     Draw(Context: CanvasRenderingContext2D, CameraPosition: Vector2):void{
         if(this.IsActive){
-            Context.drawImage(this.Image, this.transform.Position.X + CameraPosition.X, this.transform.Position.Y  + CameraPosition.Y, this.transform.Size.X, this.transform.Position.Y);
+            Context.drawImage(this.Image, this.transform.Position.X + CameraPosition.X, this.transform.Position.Y  - CameraPosition.Y, this.transform.Size.X, this.transform.Position.Y);
         }
     }
     SetActive(value: boolean): void{

@@ -1,15 +1,15 @@
-import { Colliders } from "./Colliders";
+import { Vector2 } from "../Math/Vector2";
 
 export class Collisions{
-    static AABBtoAABB(col1: Colliders.AABBCollider, col2: Colliders.AABBCollider): boolean{
-        let axmin = col1.Bottom.X;
-        let axmax = col1.Top.X;
-        let aymin = col1.Bottom.Y;
-        let aymax = col1.Top.Y;
-        let bxmin = col2.Bottom.X;
-        let bxmax = col2.Top.X;
-        let bymin = col2.Bottom.Y;
-        let bymax = col2.Top.Y;
+    static AABBtoAABB(col1: Array<Vector2>, col2: Array<Vector2>): boolean{
+        let axmin = col1[0].X;
+        let axmax = col1[1].X;
+        let aymin = col1[0].Y;
+        let aymax = col1[1].Y;
+        let bxmin = col2[0].X;
+        let bxmax = col2[1].X;
+        let bymin = col2[0].Y;
+        let bymax = col2[1].Y;
         if(axmin <= bxmax && bxmin <= axmax && aymin <= bymax && bymin <= aymax){
             return true;
         }
