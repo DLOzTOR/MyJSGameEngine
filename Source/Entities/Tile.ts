@@ -3,7 +3,7 @@ import { Entity } from "../Physics/Entity";
 import { Transform } from "../Physics/Transform";
 
 export class Tile extends Entity{
-    constructor(position: Vector2, size: Vector2,Image: string, Layer: number){
+    constructor(position: Vector2, size: Vector2,Image: HTMLImageElement, Layer: number){
         super(new Transform(position, size), Image, Layer);
     }
     Draw(Context:CanvasRenderingContext2D, Camera: Vector2){

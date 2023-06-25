@@ -1,0 +1,12 @@
+{
+    "compilerOptions": {
+        "emitDecoratorMetadata": false,
+        "experimentalDecorators": false,
+        "preserveConstEnums": true,
+        "noImplicitAny": true,
+        "module": "commonjs",
+        "target": "ES2016",
+        "outDir": "ts-built",
+        "rootDir": "./Source"
+    }
+}

@@ -7,8 +7,7 @@ export class Canvas{
     HScale:number;
     constructor (LayersCount:number){
         this.LayersCount = LayersCount;
-        //this.canvas = document.querySelector("#game")!;
-        this.canvas = document.querySelector("body")!;
+        this.canvas = document.querySelector("#game")!;
         this.WScale = 16;
         this.HScale = 9;
         this.updateSize();
@@ -25,9 +24,10 @@ export class Canvas{
         let HSize =  windowScale * this.HScale;
         this.canvas!.setAttribute("style", `width: ${WSize}px; height: ${HSize}px;`);
     }
-    GetLayerContext(Layer: number): CanvasRenderingContext2D | void{
+    GetLayerContext(Layer: number): CanvasRenderingContext2D | null{
         if(Layer >= 0 && Layer < this.LayersCount){
             return this.Layers[Layer].Context;
         }
+        return null;
     }
 }

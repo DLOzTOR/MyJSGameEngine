@@ -1,8 +1,20 @@
 (() => {
+  var __accessCheck = (obj, member, msg) => {
+    if (!member.has(obj))
+      throw TypeError("Cannot " + msg);
+  };
+  var __privateAdd = (obj, member, value) => {
+    if (member.has(obj))
+      throw TypeError("Cannot add the same private member more than once");
+    member instanceof WeakSet ? member.add(obj) : member.set(obj, value);
+  };
+  var __privateMethod = (obj, member, method) => {
+    __accessCheck(obj, member, "access private method");
+    return method;
+  };
+
   // source/Graphics/Canvas/Layer.ts
   var Layer = class {
-    Canvas;
-    Context;
     constructor(parent) {
       this.Canvas = document.createElement("canvas");
       this.Canvas.setAttribute("style", "position: absolute; top: 0; left: 0; width: 100%; height: 100%;");
@@ -10,22 +22,18 @@
       this.Canvas.width = 1920;
       this.Canvas.height = 1080;
       this.Context = this.Canvas.getContext("2d");
-      let img = new Image();
-      img.src = "Res/img/1085818.jpg";
-      this.Context.drawImage(img, 0, 0);
+      let img2 = new Image();
+      img2.src = "Res/img/1085818.jpg";
+      this.Context.drawImage(img2, 0, 0);
     }
   };
 
   // source/Graphics/Canvas/Canvas.ts
   var Canvas = class {
-    Layers = [];
-    LayersCount;
-    canvas;
-    WScale;
-    HScale;
     constructor(LayersCount) {
+      this.Layers = [];
       this.LayersCount = LayersCount;
-      this.canvas = document.querySelector("body");
+      this.canvas = document.querySelector("#game");
       this.WScale = 16;
       this.HScale = 9;
       this.updateSize();
@@ -46,19 +54,18 @@
       if (Layer2 >= 0 && Layer2 < this.LayersCount) {
         return this.Layers[Layer2].Context;
       }
+      return null;
     }
   };
 
   // source/Math/MathConstants.ts
   var MathConstants = class {
-    static RadianToDegrees = 180 / Math.PI;
-    static DegreesToRadian = Math.PI / 180;
   };
+  MathConstants.RadianToDegrees = 180 / Math.PI;
+  MathConstants.DegreesToRadian = Math.PI / 180;
 
   // source/Math/Vector2.ts
   var Vector2 = class _Vector2 {
-    X;
-    Y;
     constructor(X, Y) {
       this.X = X;
       this.Y = Y;
@@ -152,72 +159,85 @@
   };
 
   // source/Logic/Input.ts
-  var Input = class _Input {
-    static activeKeys = [];
+  var _onKeyDown, onKeyDown_fn, _onKeyUP, onKeyUP_fn, _onChangeFocus, onChangeFocus_fn, _SetKeyState, SetKeyState_fn;
+  var _Input = class _Input {
     static Init() {
-      document.onkeydown = _Input.#onKeyDown;
-      document.onkeyup = _Input.#onKeyUP;
+      document.onkeydown = __privateMethod(_Input, _onKeyDown, onKeyDown_fn);
+      document.onkeyup = __privateMethod(_Input, _onKeyUP, onKeyUP_fn);
       window.addEventListener("blur", () => {
-        _Input.#onChangeFocus();
+        var _a;
+        __privateMethod(_a = _Input, _onChangeFocus, onChangeFocus_fn).call(_a);
       });
-    }
-    static #onKeyDown(e) {
-      _Input.#SetKeyState(e, true);
-    }
-    static #onKeyUP(e) {
-      _Input.#SetKeyState(e, false);
-    }
-    static #onChangeFocus() {
-      _Input.activeKeys = [];
-    }
-    static #SetKeyState(e, state) {
-      if (e.keyCode == 9) {
-        return;
-      }
-      if (state == true) {
-        if (!_Input.activeKeys.includes(e.keyCode)) {
-          _Input.activeKeys.push(e.keyCode);
-        }
-      } else {
-        if (_Input.activeKeys.includes(e.keyCode)) {
-          _Input.activeKeys.splice(_Input.activeKeys.indexOf(e.keyCode), 1);
-        }
-      }
     }
     static GetKeyState(keyCode) {
       return this.activeKeys.includes(keyCode);
     }
   };
+  _onKeyDown = new WeakSet();
+  onKeyDown_fn = function(e) {
+    var _a;
+    __privateMethod(_a = _Input, _SetKeyState, SetKeyState_fn).call(_a, e, true);
+  };
+  _onKeyUP = new WeakSet();
+  onKeyUP_fn = function(e) {
+    var _a;
+    __privateMethod(_a = _Input, _SetKeyState, SetKeyState_fn).call(_a, e, false);
+  };
+  _onChangeFocus = new WeakSet();
+  onChangeFocus_fn = function() {
+    _Input.activeKeys = [];
+  };
+  _SetKeyState = new WeakSet();
+  SetKeyState_fn = function(e, state) {
+    if (e.keyCode == 9) {
+      return;
+    }
+    if (state == true) {
+      if (!_Input.activeKeys.includes(e.keyCode)) {
+        _Input.activeKeys.push(e.keyCode);
+      }
+    } else {
+      if (_Input.activeKeys.includes(e.keyCode)) {
+        _Input.activeKeys.splice(_Input.activeKeys.indexOf(e.keyCode), 1);
+      }
+    }
+  };
+  __privateAdd(_Input, _onKeyDown);
+  __privateAdd(_Input, _onKeyUP);
+  __privateAdd(_Input, _onChangeFocus);
+  __privateAdd(_Input, _SetKeyState);
+  _Input.activeKeys = [];
+  var Input = _Input;
 
   // source/Logic/Time.ts
-  var Time = class _Time {
-    static prevTime;
-    static curTime;
-    static deltaTime = (_Time.curTime - _Time.prevTime) / 1e3;
+  var _Time = class _Time {
     static Init() {
       _Time.prevTime = performance.now();
       _Time.curTime = performance.now();
+      window.addEventListener("focus", () => _Time.OnFocus());
     }
     static Update() {
       _Time.curTime = performance.now();
       _Time.deltaTime = (_Time.curTime - _Time.prevTime) / 1e3;
       _Time.prevTime = _Time.curTime;
     }
+    static OnFocus() {
+      _Time.prevTime = performance.now();
+      _Time.curTime = performance.now();
+      _Time.Update();
+    }
     static get DeltaTime() {
       return _Time.deltaTime;
     }
   };
+  _Time.deltaTime = (_Time.curTime - _Time.prevTime) / 1e3;
+  var Time = _Time;
 
   // source/Logic/Game.ts
   var Game = class {
-    onStart;
-    onUpdate;
-    onStop;
-    onStartPause;
-    onClearPause;
-    ShouldStop = false;
-    IsPause = false;
     constructor(onStart, onUpdate, onStop, onStartPause, onClearPause) {
+      this.ShouldStop = false;
+      this.IsPause = false;
       this.onStart = onStart;
       this.onUpdate = onUpdate;
       this.onStop = onStop;
@@ -228,10 +248,12 @@
       this.onStart();
       Time.Init();
       Input.Init();
+      window.requestAnimationFrame(this.Update.bind(this));
     }
     Update() {
       if (!this.ShouldStop) {
         Time.Update();
+        console.log(Time.DeltaTime);
         this.onUpdate();
         window.requestAnimationFrame(this.Update.bind(this));
       }
@@ -240,14 +262,10 @@
 
   // source/Physics/Entity.ts
   var Entity = class {
-    transform;
-    IsActive = true;
-    Image;
-    Layer;
     constructor(transform, Image2, Layer2) {
+      this.IsActive = true;
       this.transform = transform;
-      this.Image = document.createElement("img");
-      this.Image.src = Image2;
+      this.Image = Image2;
       this.Layer = Layer2;
     }
     Update(Entities2) {
@@ -267,9 +285,9 @@
 
   // source/Physics/Transform.ts
   var Transform = class {
-    Position = Vector2.Zero;
-    Size = Vector2.One;
     constructor(Position, size) {
+      this.Position = Vector2.Zero;
+      this.Size = Vector2.One;
       this.Position = Position;
       this.Size = size;
     }
@@ -306,7 +324,6 @@
 
   // source/Entities/Player.ts
   var Player = class extends Entity {
-    velocity;
     constructor(position, size, Image2, Layer2) {
       super(new Transform(position, size), Image2, Layer2);
     }
@@ -319,16 +336,12 @@
           let Top = [new Vector2(this.transform.Position.X + t, this.transform.Position.Y), new Vector2(this.transform.Position.X + this.transform.Size.X - t, this.transform.Position.Y)];
           let Bottom = [new Vector2(this.transform.Position.X + t, this.transform.Position.Y + this.transform.Size.Y), new Vector2(this.transform.Position.X + this.transform.Size.X - t, this.transform.Position.Y + this.transform.Size.Y)];
           if (Collisions.AABBtoAABB(entity.GetCollider(), Left)) {
-            console.log("Collision Left");
           }
           if (Collisions.AABBtoAABB(entity.GetCollider(), Right)) {
-            console.log("Collision Right");
           }
           if (Collisions.AABBtoAABB(entity.GetCollider(), Top)) {
-            console.log("Collision Top");
           }
           if (Collisions.AABBtoAABB(entity.GetCollider(), Bottom)) {
-            console.log("Collision Bottom");
           }
         }
       });
@@ -338,25 +351,59 @@
     }
   };
 
+  // source/Entities/TileController.ts
+  var TileController = class {
+    constructor(tileSize, cameraHeight) {
+      this.Layers = [];
+      this.LoadedLayers = [];
+      this.tileSize = tileSize;
+      this.cameraHeight = cameraHeight;
+    }
+    GetLayer(Layer2) {
+      if (Layer2 > -1) {
+        if (Layer2 > this.Layers.length - 1) {
+          for (let i = this.Layers.length; i <= Layer2; i++) {
+            this.Layers.push([]);
+          }
+        }
+        return this.Layers[Layer2];
+      }
+      return null;
+    }
+    UpdateLoadted(cameraPosH) {
+      this.LoadedLayers = [];
+      for (let i = cameraPosH; i < cameraPosH + this.cameraHeight; i += this.tileSize) {
+        if (i > 0) {
+          this.LoadedLayers.push(this.Layers[Math.floor(i / this.tileSize)]);
+        }
+      }
+    }
+  };
+
   // source/main.ts
+  var TC = new TileController(100, 1920);
   var canvas = new Canvas(2);
   var game = new Game(Start, Update, () => {
   }, () => {
   }, () => {
   });
-  var tile1 = "Res/img/Tile1.png";
-  var tile2 = "Res/img/Tile2.png";
-  var playerImg = "Res/img/player1.png";
-  setInterval(Update, 16);
+  var img = new Image();
+  img.src = "Res/img/1085818.jpg";
+  var tile1 = new Image();
+  tile1.src = "Res/img/Tile1.png";
+  var tile2 = new Image();
+  tile2.src = "Res/img/Tile2.png";
+  var playerImg = new Image();
+  playerImg.src = "Res/img/player1.png";
   var pos = Vector2.Zero;
   var player = new Player(new Vector2(900, 450), new Vector2(100, 100), playerImg, 1);
   var Entities = [];
-  for (let x = 8; x < 13; x++) {
-    for (let y = 0; y < 3; y++) {
-      if (y == 0) {
-        Entities.push(new Tile(new Vector2(0 + 100 * x, 600 + 100 * y), new Vector2(100, 100), tile1, 1));
+  for (let y = 6; y < 1e3; y++) {
+    for (let x = -50; x < 50; x++) {
+      if (y == 6) {
+        TC.GetLayer(y).push(new Tile(new Vector2(0 + 100 * x, 100 * y), new Vector2(100, 100), tile1, 1));
       } else {
-        Entities.push(new Tile(new Vector2(0 + 100 * x, 600 + 100 * y), new Vector2(100, 100), tile2, 1));
+        TC.GetLayer(y).push(new Tile(new Vector2(0 + 100 * x, 100 * y), new Vector2(100, 100), tile2, 1));
       }
     }
   }
@@ -368,16 +415,16 @@
   function UpdateInput() {
     let stride = Vector2.Zero;
     if (Input.GetKeyState(65)) {
-      stride = stride.Add(Vector2.Right.Scale(speed * 0.016));
+      stride = stride.Add(Vector2.Right.Scale(speed * Time.DeltaTime));
     }
     if (Input.GetKeyState(68)) {
-      stride = stride.Add(Vector2.Left.Scale(speed * 0.016));
+      stride = stride.Add(Vector2.Left.Scale(speed * Time.DeltaTime));
     }
     if (Input.GetKeyState(87)) {
-      stride = stride.Add(Vector2.Down.Scale(speed * 0.016));
+      stride = stride.Add(Vector2.Down.Scale(speed * Time.DeltaTime));
     }
     if (Input.GetKeyState(83)) {
-      stride = stride.Add(Vector2.Up.Scale(speed * 0.016));
+      stride = stride.Add(Vector2.Up.Scale(speed * Time.DeltaTime));
     }
     if (stride.X > 0) {
       stride.X = Math.floor(stride.X);
@@ -394,10 +441,15 @@
   }
   function Update() {
     UpdateInput();
-    player.Update(Entities);
+    TC.UpdateLoadted(pos.Y);
     canvas.GetLayerContext(1).clearRect(0, 0, 1920, 1080);
     Entities.forEach((tile) => {
       tile.Draw(canvas.GetLayerContext(tile.Layer), pos);
+    });
+    TC.LoadedLayers.forEach((layer) => {
+      layer.forEach((entity) => {
+        entity.Draw(canvas.GetLayerContext(entity.Layer), pos);
+      });
     });
     player.Draw(canvas.GetLayerContext(player.Layer), pos);
   }

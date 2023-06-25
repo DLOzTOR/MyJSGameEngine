@@ -2,7 +2,7 @@ import { MathConstants } from "./MathConstants";
 export class Vector2{
     X:number;
     Y:number;
-    constructor(X,Y){
+    constructor(X: number,Y: number){
         this.X = X;
         this.Y = Y;
     }

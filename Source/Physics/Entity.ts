@@ -5,10 +5,9 @@ export abstract class Entity{
     IsActive: boolean = true;
     Image: HTMLImageElement;
     Layer: number;
-    constructor(transform: Transform, Image: string, Layer: number){
+    constructor(transform: Transform, Image: HTMLImageElement, Layer: number){
         this.transform = transform;
-        this.Image = document.createElement("img");
-        this.Image.src = Image;
+        this.Image = Image;
         this.Layer = Layer;
     }
     Update(Entities:Array<Entity>): void{
